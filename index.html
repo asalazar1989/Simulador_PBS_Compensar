@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Llamada PBS Compensar</title>
+    <title>Sistema PBS Compensar - Simulador y Diagrama</title>
     <style>
         * {
             margin: 0;
@@ -13,12 +13,293 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
             min-height: 100vh;
+        }
+        
+        /* NAVEGACIÓN */
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .nav-btn {
+            background: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+        
+        /* CONTENEDORES DE VISTAS */
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* ========================================= */
+        /* ESTILOS DEL DIAGRAMA DE FLUJO */
+        /* ========================================= */
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .box {
+            padding: 25px 35px;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .entrada {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.5em;
+            width: 400px;
+        }
+        
+        .arrow {
+            font-size: 3em;
+            color: #4a5568;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .options-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        .option {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        
+        .opcion1 {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+        
+        .opcion2 {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }
+        
+        .opcion3 {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+        }
+        
+        .sub-options {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .sub-options.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .sub-option {
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.9em;
+            border-left: 4px solid #ed8936;
+            text-align: left;
+        }
+        
+        .priority {
+            border-left-color: #e53e3e;
+            font-weight: bold;
+            background: #fff5f5;
+        }
+        
+        .priority::before {
+            content: "🔴 ";
+        }
+        
+        .decision-box {
+            background: #fef5e7;
+            border: 3px solid #f39c12;
+            color: #7d6608;
+            font-size: 1.2em;
+            width: 350px;
+        }
+        
+        .result-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .result-box {
+            padding: 20px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            width: 300px;
+            text-align: center;
+        }
+        
+        .cola-normal {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }
+        
+        .cola-acelerada {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .cola-virtual {
+            background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+            color: white;
+        }
+        
+        .info-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: normal;
+        }
+        
+        .legend {
+            margin-top: 40px;
+            padding: 25px;
+            background: #edf2f7;
+            border-radius: 12px;
+        }
+        
+        .legend h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .legend-item {
             display: flex;
             align-items: center;
+            margin: 10px 0;
+            gap: 15px;
+        }
+        
+        .legend-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+        
+        .click-hint {
+            text-align: center;
+            color: #718096;
+            margin-top: 30px;
+            font-style: italic;
+        }
+        
+        /* ========================================= */
+        /* ESTILOS DEL SIMULADOR TELEFÓNICO */
+        /* ========================================= */
+        
+        .simulator-wrapper {
+            display: flex;
             justify-content: center;
+            align-items: center;
+            min-height: 80vh;
         }
         
         .phone-container {
@@ -64,10 +345,10 @@
             text-align: center;
             font-weight: 600;
             margin-bottom: 20px;
-            animation: pulse 2s infinite;
+            animation: statusPulse 2s infinite;
         }
         
-        @keyframes pulse {
+        @keyframes statusPulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.8; }
         }
@@ -220,59 +501,242 @@
             text-align: center;
             color: #718096;
             font-style: italic;
-            animation: dots 1.5s infinite;
-        }
-        
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60%, 100% { content: '...'; }
         }
     </style>
 </head>
 <body>
-    <div class="phone-container">
-        <div class="screen">
-            <div class="header">
-                <div class="logo">📞</div>
-                <div class="company-name">COMPENSAR PBS</div>
-            </div>
-            
-            <div id="callStatus" class="call-status">
-                ✅ Llamada Conectada
-            </div>
-            
-            <div class="message-box" id="messageBox">
-                <div class="message system">
-                    🎙️ <strong>Bienvenido a Compensar PBS.</strong><br>
-                    Por favor seleccione una opción presionando los botones a continuación:
+    <!-- NAVEGACIÓN -->
+    <div class="nav-container">
+        <button class="nav-btn active" onclick="showView('simulator')">
+            📱 Simulador Telefónico
+        </button>
+        <button class="nav-btn" onclick="showView('diagram')">
+            📊 Diagrama de Flujo
+        </button>
+    </div>
+    
+    <!-- ========================================= -->
+    <!-- VISTA: SIMULADOR TELEFÓNICO -->
+    <!-- ========================================= -->
+    <div id="simulator" class="view active">
+        <div class="simulator-wrapper">
+            <div class="phone-container">
+                <div class="screen">
+                    <div class="header">
+                        <div class="logo">📞</div>
+                        <div class="company-name">COMPENSAR PBS</div>
+                    </div>
+                    
+                    <div id="callStatus" class="call-status">
+                        ✅ Llamada Conectada
+                    </div>
+                    
+                    <div class="message-box" id="messageBox">
+                        <div class="message system">
+                            🎙️ <strong>Bienvenido a Compensar PBS.</strong><br>
+                            Por favor seleccione una opción presionando los botones a continuación:
+                        </div>
+                    </div>
+                    
+                    <div class="options" id="optionsContainer">
+                        <button class="option-btn green" onclick="selectOption('rapida')">
+                            <span class="number-badge">1</span> Cola Rápida
+                            <div class="info-tag">Consultas < 3 minutos</div>
+                        </button>
+                        
+                        <button class="option-btn blue" onclick="selectOption('cancelar')">
+                            <span class="number-badge">2</span> Cancelar / Reprogramar
+                            <div class="info-tag">Gestionar citas existentes</div>
+                        </button>
+                        
+                        <button class="option-btn orange" onclick="selectOption('agendar')">
+                            <span class="number-badge">3</span> Agendar Cita Nueva
+                            <div class="info-tag">Solicitar nuevo agendamiento</div>
+                        </button>
+                    </div>
+                    
+                    <button class="reset-btn" onclick="resetCall()">🔄 Reiniciar Llamada</button>
                 </div>
             </div>
-            
-            <div class="options" id="optionsContainer">
-                <button class="option-btn green" onclick="selectOption('rapida')">
-                    <span class="number-badge">1</span> Cola Rápida
-                    <div class="info-tag">Consultas < 3 minutos</div>
-                </button>
-                
-                <button class="option-btn blue" onclick="selectOption('cancelar')">
-                    <span class="number-badge">2</span> Cancelar / Reprogramar
-                    <div class="info-tag">Gestionar citas existentes</div>
-                </button>
-                
-                <button class="option-btn orange" onclick="selectOption('agendar')">
-                    <span class="number-badge">3</span> Agendar Cita Nueva
-                    <div class="info-tag">Solicitar nuevo agendamiento</div>
-                </button>
-            </div>
-            
-            <button class="reset-btn" onclick="resetCall()">🔄 Reiniciar Llamada</button>
         </div>
     </div>
     
+    <!-- ========================================= -->
+    <!-- VISTA: DIAGRAMA DE FLUJO -->
+    <!-- ========================================= -->
+    <div id="diagram" class="view">
+        <div class="container">
+            <h1>📞 Flujo de Llamadas PBS Compensar</h1>
+            <p class="subtitle">Sistema con Cola Virtual Inteligente</p>
+            
+            <div class="flow-diagram">
+                <!-- Entrada -->
+                <div class="box entrada">
+                    🎯 LLAMADA ENTRANTE
+                    <div class="info-box">Cola PBS Compensar</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Opciones principales -->
+                <div class="options-container">
+                    <!-- Opción 1: Cola Rápida -->
+                    <div class="option">
+                        <div class="box opcion1" onclick="toggleDetails('details1')">
+                            🟢 OPCIÓN 1<br>COLA RÁPIDA
+                            <div class="info-box">Consultas < 3 minutos</div>
+                        </div>
+                        <div id="details1" class="sub-options">
+                            <strong>Para quien YA tiene cita:</strong>
+                            <div class="sub-option">📋 Información sobre la cita</div>
+                            <div class="sub-option">💉 Preparaciones</div>
+                            <div class="sub-option">📍 Direcciones</div>
+                            <div class="sub-option">👨‍⚕️ Médico asignado</div>
+                            <div class="sub-option">⏰ Recordar hora de cita</div>
+                            <div class="sub-option">❓ Consultas simples</div>
+                            <div style="margin-top: 15px; text-align: center; color: #48bb78; font-weight: bold;">
+                                ↓<br>
+                                Espera < 4 minutos<br>
+                                o Cola Virtual
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Opción 2: Cancelar/Reprogramar -->
+                    <div class="option">
+                        <div class="box opcion2" onclick="toggleDetails('details2')">
+                            🔵 OPCIÓN 2<br>CANCELAR / REPROGRAMAR
+                            <div class="info-box">Gestión de citas existentes</div>
+                        </div>
+                        <div id="details2" class="sub-options">
+                            <div class="sub-option">❌ Cancelar cita existente</div>
+                            <div class="sub-option">🔄 Reprogramar cita existente</div>
+                            <div style="margin-top: 15px; text-align: center; color: #4299e1; font-weight: bold;">
+                                ↓<br>
+                                Cola Normal<br>
+                                o Cola Virtual
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Opción 3: Agendamiento -->
+                    <div class="option">
+                        <div class="box opcion3" onclick="toggleDetails('details3')">
+                            🟡 OPCIÓN 3<br>AGENDAMIENTO NUEVO
+                            <div class="info-box">Agendar cita nueva</div>
+                        </div>
+                        <div id="details3" class="sub-options">
+                            <strong>Seleccione el servicio:</strong>
+                            <div class="sub-option priority">Fisiatría 1ra Vez (PRIORIDAD)</div>
+                            <div class="sub-option">Fisiatría Control</div>
+                            <div class="sub-option priority">Dolor 1ra Vez (PRIORIDAD)</div>
+                            <div class="sub-option">Dolor Control</div>
+                            <div class="sub-option">Electrodiagnóstico</div>
+                            <div class="sub-option">Terapias</div>
+                            <div style="margin-top: 15px; text-align: center; color: #ed8936; font-weight: bold;">
+                                ↓<br>
+                                Sistema valida disponibilidad
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Decisión -->
+                <div class="box decision-box">
+                    ❓ ¿HAY DISPONIBILIDAD<br>Y AGENTES?
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Resultados -->
+                <div class="result-container">
+                    <div>
+                        <div class="result-box cola-normal">
+                            ✅ COLA NORMAL
+                            <div class="info-box">
+                                Tiempo estimado según volumen
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="result-box cola-acelerada">
+                            ⚡ COLA ACELERADA
+                            <div class="info-box">
+                                Solo para Fisiatría 1ra<br>y Dolor 1ra (Prioridad)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="result-box cola-virtual">
+                            🔄 COLA VIRTUAL
+                            <div class="info-box">
+                                Callback en 2-4 horas<br>
+                                + Confirmación SMS
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Leyenda -->
+            <div class="legend">
+                <h3>📌 Leyenda del Sistema</h3>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);"></div>
+                    <div><strong>Cola Rápida:</strong> Solo consultas que tomen menos de 3 minutos</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);"></div>
+                    <div><strong>Cola Normal:</strong> Tiempo de espera según disponibilidad</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);"></div>
+                    <div><strong>Cola Acelerada:</strong> Prioridad para Fisiatría y Dolor 1ra vez</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);"></div>
+                    <div><strong>Cola Virtual:</strong> Sistema de callback automático (sin espera telefónica)</div>
+                </div>
+            </div>
+            
+            <p class="click-hint">💡 Haz clic en las cajas de colores para ver más detalles</p>
+        </div>
+    </div>
+    
+    <!-- ========================================= -->
+    <!-- JAVASCRIPT -->
+    <!-- ========================================= -->
     <script>
-        let conversationHistory = [];
+        // NAVEGACIÓN ENTRE VISTAS
+        function showView(viewName) {
+            // Ocultar todas las vistas
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            // Desactivar todos los botones
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar vista seleccionada
+            document.getElementById(viewName).classList.add('active');
+            
+            // Activar botón correspondiente
+            event.target.classList.add('active');
+        }
         
+        // FUNCIONES DEL DIAGRAMA DE FLUJO
+        function toggleDetails(id) {
+            const element = document.getElementById(id);
+            element.classList.toggle('active');
+        }
+        
+        // FUNCIONES DEL SIMULADOR TELEFÓNICO
         function addMessage(text, type = 'default') {
             const messageBox = document.getElementById('messageBox');
             const message = document.createElement('div');
@@ -336,7 +800,7 @@
                         addMessage('✅ <strong>¡Tiene suerte!</strong><br>Hay agentes disponibles. Su tiempo de espera es de aproximadamente <strong>2 minutos</strong>.', 'success');
                         addMessage('🎵 Música en espera... ♪♫', 'system');
                     } else {
-                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Actualmente no hay agentes disponibles. Para no hacerlo esperar, registraremos su número y le devolveremos la llamada en las próximas <strong>2-4 horas</strong>.<br><br>📱 También recibirá un SMS de confirmación.', 'purple');
+                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Actualmente no hay agentes disponibles. Para no hacerlo esperar, registraremos su número y le devolveremos la llamada en las próximas <strong>2-4 horas</strong>.<br><br>📱 También recibirá un SMS de confirmación.', 'system');
                     }
                 }, 1500);
             }, 1000);
@@ -368,7 +832,7 @@
                     if (random > 0.4) {
                         addMessage('✅ Conectando con un agente...<br>Tiempo de espera: <strong>3-5 minutos</strong>', 'success');
                     } else {
-                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Le devolveremos la llamada en las próximas <strong>2-4 horas</strong> para gestionar la cancelación de su cita.', 'purple');
+                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Le devolveremos la llamada en las próximas <strong>2-4 horas</strong> para gestionar la cancelación de su cita.', 'system');
                     }
                 }, 1500);
             }, 1000);
@@ -386,7 +850,7 @@
                     if (random > 0.4) {
                         addMessage('✅ Conectando con un agente...<br>Tiempo de espera: <strong>4-7 minutos</strong>', 'success');
                     } else {
-                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Le devolveremos la llamada en las próximas <strong>2-4 horas</strong> para reprogramar su cita.', 'purple');
+                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Le devolveremos la llamada en las próximas <strong>2-4 horas</strong> para reprogramar su cita.', 'system');
                     }
                 }, 1500);
             }, 1000);
@@ -451,18 +915,42 @@
                     } else if (random > 0.3) {
                         // No hay citas disponibles
                         addMessage('❌ <strong>No hay citas disponibles en este momento</strong>', 'system');
-                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Le devolveremos la llamada cuando tengamos citas disponibles para <strong>' + servicio + '</strong>.<br><br>⏰ Recibirá nuestra llamada en las próximas <strong>2-4 horas</strong>.<br>📱 También le enviaremos un SMS de confirmación.', 'purple');
+                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Le devolveremos la llamada cuando tengamos citas disponibles para <strong>' + servicio + '</strong>.<br><br>⏰ Recibirá nuestra llamada en las próximas <strong>2-4 horas</strong>.<br>📱 También le enviaremos un SMS de confirmación.', 'system');
                     } else {
                         // No hay agentes
                         addMessage('⏳ <strong>Todos nuestros agentes están ocupados</strong>', 'system');
-                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Para no hacerlo esperar, le devolveremos la llamada en las próximas <strong>2-4 horas</strong> para gestionar su cita de <strong>' + servicio + '</strong>.', 'purple');
+                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Para no hacerlo esperar, le devolveremos la llamada en las próximas <strong>2-4 horas</strong> para gestionar su cita de <strong>' + servicio + '</strong>.', 'system');
                     }
                 }, 2000);
             }, 1000);
         }
         
         function resetCall() {
-            location.reload();
+            // Limpiar mensaje box
+            document.getElementById('messageBox').innerHTML = `
+                <div class="message system">
+                    🎙️ <strong>Bienvenido a Compensar PBS.</strong><br>
+                    Por favor seleccione una opción presionando los botones a continuación:
+                </div>
+            `;
+            
+            // Restaurar opciones iniciales
+            document.getElementById('optionsContainer').innerHTML = `
+                <button class="option-btn green" onclick="selectOption('rapida')">
+                    <span class="number-badge">1</span> Cola Rápida
+                    <div class="info-tag">Consultas < 3 minutos</div>
+                </button>
+                
+                <button class="option-btn blue" onclick="selectOption('cancelar')">
+                    <span class="number-badge">2</span> Cancelar / Reprogramar
+                    <div class="info-tag">Gestionar citas existentes</div>
+                </button>
+                
+                <button class="option-btn orange" onclick="selectOption('agendar')">
+                    <span class="number-badge">3</span> Agendar Cita Nueva
+                    <div class="info-tag">Solicitar nuevo agendamiento</div>
+                </button>
+            `;
         }
     </script>
 </body>
