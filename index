@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Llamada PBS Compensar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .phone-container {
+            width: 450px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+        }
+        
+        .screen {
+            background: white;
+            border-radius: 25px;
+            height: 750px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .company-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .call-status {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .message-box {
+            background: #edf2f7;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        
+        .message {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4299e1;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .message.system {
+            border-left-color: #9f7aea;
+            background: #faf5ff;
+        }
+        
+        .message.success {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+        
+        .message.priority {
+            border-left-color: #e53e3e;
+            background: #fff5f5;
+            font-weight: 600;
+        }
+        
+        .options {
+            display: grid;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .option-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .option-btn:active {
+            transform: translateY(0);
+        }
+        
+        .option-btn.green {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        
+        .option-btn.blue {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        }
+        
+        .option-btn.orange {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+        
+        .option-btn.red {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+        
+        .option-btn.purple {
+            background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+        }
+        
+        .number-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.3);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .reset-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .reset-btn:hover {
+            background: #c53030;
+        }
+        
+        .info-tag {
+            display: inline-block;
+            background: #fef5e7;
+            color: #7d6608;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            margin-top: 8px;
+            font-weight: normal;
+        }
+        
+        .priority-tag {
+            background: #fff5f5;
+            color: #c53030;
+            font-weight: bold;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="screen">
+            <div class="header">
+                <div class="logo">📞</div>
+                <div class="company-name">COMPENSAR PBS</div>
+            </div>
+            
+            <div id="callStatus" class="call-status">
+                ✅ Llamada Conectada
+            </div>
+            
+            <div class="message-box" id="messageBox">
+                <div class="message system">
+                    🎙️ <strong>Bienvenido a Compensar PBS.</strong><br>
+                    Por favor seleccione una opción presionando los botones a continuación:
+                </div>
+            </div>
+            
+            <div class="options" id="optionsContainer">
+                <button class="option-btn green" onclick="selectOption('rapida')">
+                    <span class="number-badge">1</span> Cola Rápida
+                    <div class="info-tag">Consultas < 3 minutos</div>
+                </button>
+                
+                <button class="option-btn blue" onclick="selectOption('cancelar')">
+                    <span class="number-badge">2</span> Cancelar / Reprogramar
+                    <div class="info-tag">Gestionar citas existentes</div>
+                </button>
+                
+                <button class="option-btn orange" onclick="selectOption('agendar')">
+                    <span class="number-badge">3</span> Agendar Cita Nueva
+                    <div class="info-tag">Solicitar nuevo agendamiento</div>
+                </button>
+            </div>
+            
+            <button class="reset-btn" onclick="resetCall()">🔄 Reiniciar Llamada</button>
+        </div>
+    </div>
+    
+    <script>
+        let conversationHistory = [];
+        
+        function addMessage(text, type = 'default') {
+            const messageBox = document.getElementById('messageBox');
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.innerHTML = text;
+            messageBox.appendChild(message);
+            messageBox.scrollTop = messageBox.scrollHeight;
+        }
+        
+        function clearOptions() {
+            document.getElementById('optionsContainer').innerHTML = '';
+        }
+        
+        function showLoading() {
+            addMessage('⏳ Procesando su solicitud...', 'system');
+        }
+        
+        function selectOption(option) {
+            clearOptions();
+            
+            switch(option) {
+                case 'rapida':
+                    handleColaRapida();
+                    break;
+                case 'cancelar':
+                    handleCancelarReprogramar();
+                    break;
+                case 'agendar':
+                    handleAgendarNueva();
+                    break;
+                case 'fisiatria1':
+                    handleServicio('Fisiatría Primera Vez', true);
+                    break;
+                case 'fisiatriaControl':
+                    handleServicio('Fisiatría Control', false);
+                    break;
+                case 'dolor1':
+                    handleServicio('Dolor Primera Vez', true);
+                    break;
+                case 'dolorControl':
+                    handleServicio('Dolor Control', false);
+                    break;
+                case 'electro':
+                    handleServicio('Electrodiagnóstico', false);
+                    break;
+                case 'terapias':
+                    handleServicio('Terapias', false);
+                    break;
+            }
+        }
+        
+        function handleColaRapida() {
+            addMessage('✅ Ha seleccionado: <strong>Cola Rápida</strong>', 'success');
+            addMessage('🎙️ Esta cola es solo para consultas rápidas que tomen <strong>menos de 3 minutos</strong>, como:<br><br>• Consultar hora de cita<br>• Médico asignado<br>• Dirección de la sede<br>• Preparaciones<br>• Recordatorios', 'system');
+            
+            setTimeout(() => {
+                showLoading();
+                setTimeout(() => {
+                    const random = Math.random();
+                    if (random > 0.5) {
+                        addMessage('✅ <strong>¡Tiene suerte!</strong><br>Hay agentes disponibles. Su tiempo de espera es de aproximadamente <strong>2 minutos</strong>.', 'success');
+                        addMessage('🎵 Música en espera... ♪♫', 'system');
+                    } else {
+                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Actualmente no hay agentes disponibles. Para no hacerlo esperar, registraremos su número y le devolveremos la llamada en las próximas <strong>2-4 horas</strong>.<br><br>📱 También recibirá un SMS de confirmación.', 'purple');
+                    }
+                }, 1500);
+            }, 1000);
+        }
+        
+        function handleCancelarReprogramar() {
+            addMessage('✅ Ha seleccionado: <strong>Cancelar o Reprogramar Cita</strong>', 'success');
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = `
+                <button class="option-btn blue" onclick="handleCancelacion()">
+                    ❌ Cancelar una cita
+                </button>
+                <button class="option-btn blue" onclick="handleReprogramacion()">
+                    🔄 Reprogramar una cita
+                </button>
+            `;
+        }
+        
+        function handleCancelacion() {
+            clearOptions();
+            addMessage('✅ Ha seleccionado: <strong>Cancelar Cita</strong>', 'success');
+            addMessage('🎙️ Por favor tenga a mano su número de documento para verificar su cita.', 'system');
+            
+            setTimeout(() => {
+                showLoading();
+                setTimeout(() => {
+                    const random = Math.random();
+                    if (random > 0.4) {
+                        addMessage('✅ Conectando con un agente...<br>Tiempo de espera: <strong>3-5 minutos</strong>', 'success');
+                    } else {
+                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Le devolveremos la llamada en las próximas <strong>2-4 horas</strong> para gestionar la cancelación de su cita.', 'purple');
+                    }
+                }, 1500);
+            }, 1000);
+        }
+        
+        function handleReprogramacion() {
+            clearOptions();
+            addMessage('✅ Ha seleccionado: <strong>Reprogramar Cita</strong>', 'success');
+            addMessage('🎙️ Por favor tenga a mano su número de documento y las nuevas fechas que le sirvan.', 'system');
+            
+            setTimeout(() => {
+                showLoading();
+                setTimeout(() => {
+                    const random = Math.random();
+                    if (random > 0.4) {
+                        addMessage('✅ Conectando con un agente...<br>Tiempo de espera: <strong>4-7 minutos</strong>', 'success');
+                    } else {
+                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Le devolveremos la llamada en las próximas <strong>2-4 horas</strong> para reprogramar su cita.', 'purple');
+                    }
+                }, 1500);
+            }, 1000);
+        }
+        
+        function handleAgendarNueva() {
+            addMessage('✅ Ha seleccionado: <strong>Agendar Cita Nueva</strong>', 'success');
+            addMessage('🎙️ Por favor seleccione el servicio que necesita:', 'system');
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = `
+                <button class="option-btn red" onclick="selectOption('fisiatria1')">
+                    <span class="number-badge">1</span> Fisiatría 1ra Vez
+                    <div class="info-tag priority-tag">🔴 ATENCIÓN PRIORITARIA</div>
+                </button>
+                
+                <button class="option-btn orange" onclick="selectOption('fisiatriaControl')">
+                    <span class="number-badge">2</span> Fisiatría Control
+                </button>
+                
+                <button class="option-btn red" onclick="selectOption('dolor1')">
+                    <span class="number-badge">3</span> Dolor 1ra Vez
+                    <div class="info-tag priority-tag">🔴 ATENCIÓN PRIORITARIA</div>
+                </button>
+                
+                <button class="option-btn orange" onclick="selectOption('dolorControl')">
+                    <span class="number-badge">4</span> Dolor Control
+                </button>
+                
+                <button class="option-btn orange" onclick="selectOption('electro')">
+                    <span class="number-badge">5</span> Electrodiagnóstico
+                </button>
+                
+                <button class="option-btn orange" onclick="selectOption('terapias')">
+                    <span class="number-badge">6</span> Terapias
+                </button>
+            `;
+        }
+        
+        function handleServicio(servicio, esPrioridad) {
+            clearOptions();
+            addMessage(`✅ Ha seleccionado: <strong>${servicio}</strong>`, esPrioridad ? 'priority' : 'success');
+            
+            if (esPrioridad) {
+                addMessage('🔴 Este servicio tiene <strong>atención prioritaria</strong>', 'priority');
+            }
+            
+            setTimeout(() => {
+                showLoading();
+                addMessage('🔍 Verificando disponibilidad de citas y agentes...', 'system');
+                
+                setTimeout(() => {
+                    const random = Math.random();
+                    
+                    if (random > 0.7) {
+                        // Hay disponibilidad
+                        if (esPrioridad) {
+                            addMessage('⚡ <strong>¡COLA ACELERADA!</strong><br><br>Hay citas disponibles y su solicitud tiene prioridad.<br>Tiempo de espera: <strong>1-2 minutos</strong>', 'priority');
+                        } else {
+                            addMessage('✅ Hay citas disponibles.<br>Conectando con un agente...<br>Tiempo de espera: <strong>5-8 minutos</strong>', 'success');
+                        }
+                    } else if (random > 0.3) {
+                        // No hay citas disponibles
+                        addMessage('❌ <strong>No hay citas disponibles en este momento</strong>', 'system');
+                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Le devolveremos la llamada cuando tengamos citas disponibles para <strong>' + servicio + '</strong>.<br><br>⏰ Recibirá nuestra llamada en las próximas <strong>2-4 horas</strong>.<br>📱 También le enviaremos un SMS de confirmación.', 'purple');
+                    } else {
+                        // No hay agentes
+                        addMessage('⏳ <strong>Todos nuestros agentes están ocupados</strong>', 'system');
+                        addMessage('🔄 <strong>Cola Virtual Activada</strong><br><br>Para no hacerlo esperar, le devolveremos la llamada en las próximas <strong>2-4 horas</strong> para gestionar su cita de <strong>' + servicio + '</strong>.', 'purple');
+                    }
+                }, 2000);
+            }, 1000);
+        }
+        
+        function resetCall() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
